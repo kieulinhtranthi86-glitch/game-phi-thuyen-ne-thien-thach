@@ -4,404 +4,332 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Phi Thuyền Né Thiên Thạch</title>
-
+<title>Galaxy Escape - Phi Thuyền Né Thiên Thạch</title>
 <style>
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  background: #05091c;
-  color: white;
-  font-family: Arial, sans-serif;
-  text-align: center;
-  overflow-x: hidden;
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;padding:16px 10px;
+  background:radial-gradient(ellipse at top,#17275b,#060817 70%);
+  color:#fff;font-family:Arial,sans-serif;text-align:center
 }
-
-h1 {
-  color: #61f5ff;
-  text-shadow: 0 0 12px #008cff;
-  margin: 18px 8px 6px;
-}
-
-p { color: #cbd8ff; }
-
-#hud {
-  display: flex;
-  justify-content: center;
-  gap: 28px;
-  font-size: 18px;
-  margin: 12px;
-}
-
-#game {
-  display: block;
-  width: min(94vw, 420px);
-  height: auto;
-  margin: 0 auto;
-  border: 2px solid #4ce9ff;
-  border-radius: 10px;
-  background: #080d28;
-  box-shadow: 0 0 22px #1746b9;
-  touch-action: none;
-}
-
-button {
-  background: #20d9f5;
-  color: #061027;
-  border: 0;
-  border-radius: 9px;
-  padding: 12px 20px;
-  margin: 10px 5px;
-  font-weight: bold;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-button:active { transform: scale(0.96); }
-
-#message {
-  min-height: 24px;
-  color: #ffe779;
-  font-weight: bold;
-}
-
-.controls {
-  display: flex;
-  justify-content: center;
-  gap: 24px;
-}
-
-.controls button {
-  width: 75px;
-  font-size: 24px;
-}
-
-small { color: #9eacd5; }
+h1{margin:8px 0;color:#7cf7ff;letter-spacing:2px;
+  text-shadow:0 0 15px #00bfff}
+.subtitle{color:#b8c9f5;margin:8px}
+#hud{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin:14px auto;max-width:430px}
+.stat{background:#111b3c;border:1px solid #385eaa;border-radius:10px;padding:9px 13px}
+.stat span{color:#80f7ff;font-weight:bold}
+#wrap{position:relative;width:min(94vw,420px);margin:auto}
+canvas{display:block;width:100%;height:auto;border:2px solid #54eaff;
+  border-radius:14px;box-shadow:0 0 25px #176bba;background:#070b22}
+#overlay{position:absolute;inset:0;display:flex;align-items:center;
+  justify-content:center;padding:20px;background:#05091ccf;
+  border-radius:14px}
+#panel{width:100%;padding:20px 12px;border:1px solid #4eeaff;
+  border-radius:15px;background:#101936ed;box-shadow:0 0 24px #176bba}
+#panel h2{color:#73f5ff;font-size:25px;margin:5px}
+#panel p{line-height:1.6;color:#d3defd}
+button{border:0;border-radius:9px;padding:11px 15px;margin:4px;
+  background:linear-gradient(120deg,#36efff,#648bff);color:#07132d;
+  font-size:14px;font-weight:bold;cursor:pointer}
+button:active{transform:scale(.96)}
+.secondary{background:#25365f;color:#fff;border:1px solid #6684bd}
+#actions{margin:10px auto}
+#message{min-height:24px;color:#ffe88a;font-weight:bold}
+#touch{display:flex;justify-content:center;gap:32px;margin:8px auto}
+#touch button{width:78px;height:53px;font-size:24px;touch-action:none}
+small{color:#aebde5}
 </style>
 </head>
-
 <body>
-<h1>🚀 PHI THUYỀN VŨ TRỤ</h1>
-<p>Né thiên thạch và sống sót lâu nhất!</p>
+<h1>🚀 GALAXY ESCAPE</h1>
+<p class="subtitle">Né thiên thạch · Sinh tồn · Chinh phục vũ trụ</p>
 
 <div id="hud">
-  <span>⭐ Điểm: <b id="score">0</b></span>
-  <span>❤️ Mạng: <b id="lives">3</b></span>
+  <div class="stat">⭐ Điểm: <span id="score">0</span></div>
+  <div class="stat">🏆 Kỷ lục: <span id="best">0</span></div>
+  <div class="stat">❤️ Mạng: <span id="lives">3</span></div>
+  <div class="stat">🌌 Cấp: <span id="level">1</span></div>
 </div>
 
-<canvas id="game" width="420" height="560"></canvas>
+<div id="wrap">
+  <canvas id="game" width="420" height="560"></canvas>
+  <div id="overlay">
+    <div id="panel">
+      <h2 id="panelTitle">GALAXY ESCAPE</h2>
+      <p id="panelText">Lái phi thuyền né thiên thạch.<br>
+      Sống sót càng lâu, điểm càng cao!</p>
+      <button id="mainButton">🚀 BẮT ĐẦU</button>
+    </div>
+  </div>
+</div>
 
-<div id="message">Nhấn BẮT ĐẦU để chơi!</div>
-<button id="start">▶ BẮT ĐẦU / CHƠI LẠI</button>
+<div id="actions">
+  <button id="pauseButton" class="secondary">⏸ Tạm dừng</button>
+  <button id="soundButton" class="secondary">🔊 Âm thanh: Bật</button>
+</div>
 
-<div class="controls">
+<div id="message">Sẵn sàng khám phá vũ trụ!</div>
+
+<div id="touch">
   <button id="left" aria-label="Sang trái">⬅️</button>
   <button id="right" aria-label="Sang phải">➡️</button>
 </div>
-
-<p><small>Dùng phím ← → hoặc A, D để điều khiển.</small></p>
+<small>Máy tính: phím ← → hoặc A, D · Điện thoại: dùng nút hai bên</small>
 
 <script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+const $=id=>document.getElementById(id);
+const W=canvas.width,H=canvas.height;
 
-const scoreEl = document.getElementById("score");
-const livesEl = document.getElementById("lives");
-const message = document.getElementById("message");
+let mode="menu",ship,rocks,stars,particles;
+let score=0,lives=3,level=1,best=0;
+let last=0,spawn=0,invulnerable=0,anim=0;
+let soundOn=true,audio=null;
+const keys={left:false,right:false};
 
-const W = canvas.width;
-const H = canvas.height;
+try{best=Number(localStorage.getItem("galaxyBest"))||0}catch(e){}
+$("best").textContent=best;
 
-let ship, rocks, stars, score, lives;
-let playing = false;
-let lastTime = 0;
-let spawnTimer = 0;
-let invincible = 0;
-let animationId = null;
+function beep(freq=440,duration=.08,type="sine"){
+  if(!soundOn)return;
+  try{
+    audio=audio||new(window.AudioContext||window.webkitAudioContext)();
+    if(audio.state==="suspended")audio.resume();
+    const osc=audio.createOscillator(),gain=audio.createGain();
+    osc.type=type;osc.frequency.value=freq;
+    gain.gain.setValueAtTime(.08,audio.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);
+    osc.connect(gain);gain.connect(audio.destination);
+    osc.start();osc.stop(audio.currentTime+duration);
+  }catch(e){}
+}
 
-let best = 0;
-try {
-  best = Number(localStorage.getItem("spaceBest")) || 0;
-} catch (e) {}
-
-const keys = { left: false, right: false };
-
-function resetGame() {
-  ship = { x: W / 2, y: H - 65, w: 30, h: 38 };
-  rocks = [];
-  stars = Array.from({ length: 65 }, () => ({
-    x: Math.random() * W,
-    y: Math.random() * H,
-    speed: 25 + Math.random() * 100,
-    size: Math.random() * 2 + 1
+function reset(){
+  ship={x:W/2,y:H-65};
+  rocks=[];particles=[];score=0;lives=3;level=1;
+  spawn=0;invulnerable=0;
+  stars=Array.from({length:95},()=>({
+    x:Math.random()*W,y:Math.random()*H,
+    s:Math.random()*2+.5,v:25+Math.random()*100
   }));
-
-  score = 0;
-  lives = 3;
-  spawnTimer = 0;
-  invincible = 0;
-  lastTime = 0;
-  keys.left = false;
-  keys.right = false;
-
-  scoreEl.textContent = score;
-  livesEl.textContent = lives;
+  updateHUD();
 }
 
-function drawShip() {
-  ctx.save();
-  ctx.translate(ship.x, ship.y);
+function updateHUD(){
+  $("score").textContent=score;
+  $("lives").textContent=lives;
+  $("level").textContent=level;
+  $("best").textContent=best;
+}
 
-  ctx.fillStyle = "#ff9f43";
-  ctx.beginPath();
-  ctx.moveTo(-8, 15);
-  ctx.lineTo(0, 31 + Math.random() * 5);
-  ctx.lineTo(8, 15);
-  ctx.fill();
+function showOverlay(title,text,button){
+  $("panelTitle").textContent=title;
+  $("panelText").innerHTML=text;
+  $("mainButton").textContent=button;
+  $("overlay").style.display="flex";
+}
 
-  ctx.fillStyle = "#56efff";
-  ctx.beginPath();
-  ctx.moveTo(0, -22);
-  ctx.lineTo(16, 17);
-  ctx.lineTo(0, 10);
-  ctx.lineTo(-16, 17);
-  ctx.closePath();
-  ctx.fill();
+function start(){
+  if(anim)cancelAnimationFrame(anim);
+  reset();mode="playing";last=0;
+  $("overlay").style.display="none";
+  $("message").textContent="Né thiên thạch nào!";
+  beep(600,.12);
+  anim=requestAnimationFrame(loop);
+}
 
-  ctx.fillStyle = "#f4f7ff";
-  ctx.beginPath();
-  ctx.moveTo(0, -17);
-  ctx.lineTo(7, 12);
-  ctx.lineTo(-7, 12);
-  ctx.closePath();
-  ctx.fill();
+function pause(){
+  if(mode==="playing"){
+    mode="paused";
+    keys.left=keys.right=false;
+    showOverlay("⏸ TẠM DỪNG","Nghỉ một chút rồi tiếp tục hành trình nhé!","▶ TIẾP TỤC");
+    $("mainButton").onclick=resume;
+    $("message").textContent="Trò chơi đang tạm dừng.";
+  }else if(mode==="paused")resume();
+}
 
-  ctx.fillStyle = "#a7f8ff";
-  ctx.beginPath();
-  ctx.ellipse(0, -3, 4, 7, 0, 0, Math.PI * 2);
-  ctx.fill();
+function resume(){
+  mode="playing";last=0;
+  $("overlay").style.display="none";
+  $("mainButton").onclick=start;
+  anim=requestAnimationFrame(loop);
+}
 
+function gameOver(){
+  mode="over";
+  keys.left=keys.right=false;
+  if(score>best){
+    best=score;
+    try{localStorage.setItem("galaxyBest",best)}catch(e){}
+  }
+  updateHUD();
+  beep(130,.35,"sawtooth");
+  showOverlay("💥 GAME OVER",
+    "Điểm của bạn: <b>"+score+"</b><br>Kỷ lục: <b>"+best+
+    "</b><br>Bạn có thể thử lại để đạt điểm cao hơn!","🔄 CHƠI LẠI");
+  $("mainButton").onclick=start;
+  $("message").textContent="Phi thuyền đã kết thúc hành trình.";
+}
+
+function burst(x,y,color,count=18){
+  for(let i=0;i<count;i++){
+    const a=Math.random()*Math.PI*2;
+    const speed=30+Math.random()*180;
+    particles.push({
+      x,y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,
+      life:.3+Math.random()*.65,max:.95,
+      size:2+Math.random()*4,color
+    });
+  }
+}
+
+function drawShip(){
+  ctx.save();ctx.translate(ship.x,ship.y);
+  ctx.shadowBlur=18;ctx.shadowColor="#31eaff";
+  ctx.fillStyle="#ff9e43";
+  ctx.beginPath();ctx.moveTo(-8,13);ctx.lineTo(0,32+Math.random()*5);
+  ctx.lineTo(8,13);ctx.fill();
+  ctx.fillStyle="#35dfff";
+  ctx.beginPath();ctx.moveTo(0,-23);ctx.lineTo(17,17);
+  ctx.lineTo(0,10);ctx.lineTo(-17,17);ctx.closePath();ctx.fill();
+  ctx.fillStyle="#fff";
+  ctx.beginPath();ctx.moveTo(0,-17);ctx.lineTo(7,11);
+  ctx.lineTo(-7,11);ctx.closePath();ctx.fill();
+  ctx.fillStyle="#0a2b64";
+  ctx.beginPath();ctx.ellipse(0,-3,4,7,0,0,Math.PI*2);ctx.fill();
   ctx.restore();
 }
 
-function drawRock(rock) {
-  ctx.save();
-  ctx.translate(rock.x, rock.y);
-  ctx.rotate(rock.rotation);
-
-  ctx.fillStyle = "#858ba6";
-  ctx.strokeStyle = "#d0d7ee";
-  ctx.lineWidth = 2;
-
+function drawRock(r){
+  ctx.save();ctx.translate(r.x,r.y);ctx.rotate(r.rot);
+  ctx.shadowBlur=9;ctx.shadowColor="#ff865d";
+  ctx.fillStyle="#777f9e";ctx.strokeStyle="#cbd7ef";ctx.lineWidth=2;
   ctx.beginPath();
-  for (let i = 0; i < 9; i++) {
-    const angle = i * Math.PI * 2 / 9;
-    const radius = rock.r * (
-      i % 2 === 0 ? 1 : 0.78
-    );
-
-    const x = Math.cos(angle) * radius;
-    const y = Math.sin(angle) * radius;
-
-    if (i === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
+  for(let i=0;i<10;i++){
+    const a=i*Math.PI*2/10,rad=r.r*(i%2?.78:1);
+    const x=Math.cos(a)*rad,y=Math.sin(a)*rad;
+    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
   }
-
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.fillStyle = "#565d77";
-  ctx.beginPath();
-  ctx.arc(-rock.r * 0.25, -rock.r * 0.1,
-          rock.r * 0.2, 0, Math.PI * 2);
-  ctx.fill();
-
+  ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.shadowBlur=0;ctx.fillStyle="#4a526e";
+  ctx.beginPath();ctx.arc(-r.r*.22,-r.r*.1,r.r*.2,0,Math.PI*2);ctx.fill();
   ctx.restore();
 }
 
-function drawBackground(dt) {
-  ctx.fillStyle = "#080d28";
-  ctx.fillRect(0, 0, W, H);
+function draw(dt){
+  const grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,"#090d2b");grad.addColorStop(1,"#141044");
+  ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
 
-  for (const star of stars) {
-    star.y += star.speed * dt;
+  for(const s of stars){
+    s.y+=s.v*dt;
+    if(s.y>H){s.y=0;s.x=Math.random()*W}
+    ctx.globalAlpha=.4+s.s/4;
+    ctx.fillStyle="#c8f4ff";ctx.fillRect(s.x,s.y,s.s,s.s);
+  }
+  ctx.globalAlpha=1;
+  for(const r of rocks)drawRock(r);
 
-    if (star.y > H) {
-      star.y = 0;
-      star.x = Math.random() * W;
-    }
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];
+    p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;
+    if(p.life<=0){particles.splice(i,1);continue}
+    ctx.globalAlpha=Math.max(0,p.life/p.max);
+    ctx.fillStyle=p.color;
+    ctx.fillRect(p.x,p.y,p.size,p.size);
+  }
+  ctx.globalAlpha=1;
 
-    ctx.fillStyle = "#dceaff";
-    ctx.globalAlpha = 0.4 + star.size / 4;
-    ctx.fillRect(star.x, star.y, star.size, star.size);
+  if(ship&&(invulnerable<=0||Math.floor(invulnerable*12)%2===0))
+    drawShip();
+}
+
+function update(dt){
+  if(keys.left)ship.x-=270*dt;
+  if(keys.right)ship.x+=270*dt;
+  ship.x=Math.max(22,Math.min(W-22,ship.x));
+  invulnerable=Math.max(0,invulnerable-dt);
+
+  level=1+Math.floor(score/10);
+  spawn+=dt;
+  if(spawn>Math.max(.25,.8-level*.055)){
+    spawn=0;
+    const r=13+Math.random()*13;
+    rocks.push({
+      x:r+Math.random()*(W-2*r),y:-r,r,
+      speed:100+Math.random()*60+level*12,
+      rot:Math.random()*6,spin:(Math.random()-.5)*2
+    });
   }
 
-  ctx.globalAlpha = 1;
-}
+  for(let i=rocks.length-1;i>=0;i--){
+    const r=rocks[i];
+    r.y+=r.speed*dt;r.rot+=r.spin*dt;
 
-function spawnRock() {
-  const r = 14 + Math.random() * 13;
-
-  rocks.push({
-    x: r + Math.random() * (W - 2 * r),
-    y: -r,
-    r,
-    speed: 100 + Math.random() * 70 + score * 1.5,
-    rotation: Math.random() * Math.PI,
-    spin: (Math.random() - 0.5) * 2
-  });
-}
-
-function hitTest(rock) {
-  const dx = rock.x - ship.x;
-  const dy = rock.y - ship.y;
-
-  return Math.hypot(dx, dy) < rock.r + 13;
-}
-
-function endGame() {
-  playing = false;
-  keys.left = false;
-  keys.right = false;
-  message.textContent =
-    "🚀 Kết thúc! Điểm: " + score +
-    " | Kỷ lục: " + best;
-}
-
-function update(dt) {
-  if (keys.left) ship.x -= 250 * dt;
-  if (keys.right) ship.x += 250 * dt;
-
-  ship.x = Math.max(22, Math.min(W - 22, ship.x));
-
-  invincible = Math.max(0, invincible - dt);
-  spawnTimer += dt;
-
-  const spawnInterval = Math.max(0.3, 0.85 - score * 0.003);
-
-  if (spawnTimer >= spawnInterval) {
-    spawnTimer = 0;
-    spawnRock();
-  }
-
-  for (let i = rocks.length - 1; i >= 0; i--) {
-    const rock = rocks[i];
-
-    rock.y += rock.speed * dt;
-    rock.rotation += rock.spin * dt;
-
-    if (rock.y - rock.r > H) {
-      rocks.splice(i, 1);
-      score++;
-      scoreEl.textContent = score;
+    if(r.y-r.r>H){
+      rocks.splice(i,1);score++;updateHUD();
+      beep(720,.04);
+      if(score>best){best=score;updateHUD()}
       continue;
     }
 
-    if (invincible <= 0 && hitTest(rock)) {
-      rocks.splice(i, 1);
-      lives--;
-      livesEl.textContent = lives;
-      invincible = 1.2;
-
-      if (lives <= 0) {
-        endGame();
-        return;
-      }
+    if(invulnerable<=0&&Math.hypot(r.x-ship.x,r.y-ship.y)<r.r+14){
+      burst(ship.x,ship.y,"#ffb34f",24);
+      burst(r.x,r.y,"#73efff",12);
+      rocks.splice(i,1);lives--;invulnerable=1.2;
+      updateHUD();beep(180,.18,"square");
+      if(lives<=0){gameOver();return}
     }
   }
 }
 
-function draw() {
-  drawBackground(0);
-
-  for (const rock of rocks) drawRock(rock);
-
-  if (invincible <= 0 || Math.floor(invincible * 10) % 2 === 0) {
-    drawShip();
-  }
+function loop(t){
+  if(mode!=="playing")return;
+  const dt=last?Math.min((t-last)/1000,.035):0;
+  last=t;
+  draw(dt);update(dt);
+  if(mode==="playing")anim=requestAnimationFrame(loop);
 }
 
-function loop(timestamp) {
-  if (!playing) return;
-
-  if (!lastTime) lastTime = timestamp;
-
-  const dt = Math.min((timestamp - lastTime) / 1000, 0.04);
-  lastTime = timestamp;
-
-  update(dt);
-  draw();
-
-  if (playing) {
-    animationId = requestAnimationFrame(loop);
-  }
-}
-
-function startGame() {
-  if (animationId !== null) {
-    cancelAnimationFrame(animationId);
-  }
-
-  resetGame();
-  playing = true;
-  message.textContent = "Né thiên thạch nào!";
-  animationId = requestAnimationFrame(loop);
-}
-
-function setKey(key, value) {
-  if (key === "left") keys.left = value;
-  if (key === "right") keys.right = value;
-}
-
-document.addEventListener("keydown", e => {
-  if (["ArrowLeft", "ArrowRight", " "].includes(e.key)) {
-    e.preventDefault();
-  }
-
-  if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") {
-    setKey("left", true);
-  }
-
-  if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
-    setKey("right", true);
-  }
-
-  if (e.key === " " && !playing) startGame();
-});
-
-document.addEventListener("keyup", e => {
-  if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") {
-    setKey("left", false);
-  }
-
-  if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
-    setKey("right", false);
+function setKey(k,v){keys[k]=v}
+document.addEventListener("keydown",e=>{
+  if(["ArrowLeft","ArrowRight"," "].includes(e.key))e.preventDefault();
+  if(e.key==="ArrowLeft"||e.key.toLowerCase()==="a")setKey("left",true);
+  if(e.key==="ArrowRight"||e.key.toLowerCase()==="d")setKey("right",true);
+  if(e.key===" "&&mode==="menu")start();
+  if(e.key==="Escape"||e.key.toLowerCase()==="p"){
+    if(mode==="playing"||mode==="paused")pause();
   }
 });
+document.addEventListener("keyup",e=>{
+  if(e.key==="ArrowLeft"||e.key.toLowerCase()==="a")setKey("left",false);
+  if(e.key==="ArrowRight"||e.key.toLowerCase()==="d")setKey("right",false);
+});
 
-function bindButton(id, key) {
-  const button = document.getElementById(id);
-
-  button.addEventListener("pointerdown", e => {
-    e.preventDefault();
-    setKey(key, true);
+function bindTouch(id,k){
+  const b=$(id);
+  b.addEventListener("pointerdown",e=>{
+    e.preventDefault();b.setPointerCapture(e.pointerId);setKey(k,true);
   });
-
-  for (const eventName of ["pointerup", "pointerleave",
-                           "pointercancel"]) {
-    button.addEventListener(eventName, () => setKey(key, false));
-  }
+  for(const ev of ["pointerup","pointercancel","lostpointercapture"])
+    b.addEventListener(ev,()=>setKey(k,false));
 }
+bindTouch("left","left");bindTouch("right","right");
 
-bindButton("left", "left");
-bindButton("right", "right");
+$("mainButton").onclick=start;
+$("pauseButton").onclick=pause;
+$("soundButton").onclick=()=>{
+  soundOn=!soundOn;
+  $("soundButton").textContent=soundOn?"🔊 Âm thanh: Bật":"🔇 Âm thanh: Tắt";
+  if(soundOn)beep();
+};
 
-document.getElementById("start").addEventListener("click", startGame);
-
-resetGame();
-draw();
+reset();draw(0);
+showOverlay("GALAXY ESCAPE",
+  "🚀 Điều khiển phi thuyền né thiên thạch.<br>"+
+  "Mỗi thiên thạch vượt qua giúp bạn tăng điểm.<br>"+
+  "Bạn có 3 mạng. Cứ mỗi 10 điểm, cấp độ tăng!","🚀 BẮT ĐẦU");
 </script>
 </body>
 </html>
