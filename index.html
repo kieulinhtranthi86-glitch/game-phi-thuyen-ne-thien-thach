@@ -1,0 +1,407 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phi Thuyền Né Thiên Thạch</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #05091c;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  overflow-x: hidden;
+}
+
+h1 {
+  color: #61f5ff;
+  text-shadow: 0 0 12px #008cff;
+  margin: 18px 8px 6px;
+}
+
+p { color: #cbd8ff; }
+
+#hud {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  font-size: 18px;
+  margin: 12px;
+}
+
+#game {
+  display: block;
+  width: min(94vw, 420px);
+  height: auto;
+  margin: 0 auto;
+  border: 2px solid #4ce9ff;
+  border-radius: 10px;
+  background: #080d28;
+  box-shadow: 0 0 22px #1746b9;
+  touch-action: none;
+}
+
+button {
+  background: #20d9f5;
+  color: #061027;
+  border: 0;
+  border-radius: 9px;
+  padding: 12px 20px;
+  margin: 10px 5px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:active { transform: scale(0.96); }
+
+#message {
+  min-height: 24px;
+  color: #ffe779;
+  font-weight: bold;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+.controls button {
+  width: 75px;
+  font-size: 24px;
+}
+
+small { color: #9eacd5; }
+</style>
+</head>
+
+<body>
+<h1>🚀 PHI THUYỀN VŨ TRỤ</h1>
+<p>Né thiên thạch và sống sót lâu nhất!</p>
+
+<div id="hud">
+  <span>⭐ Điểm: <b id="score">0</b></span>
+  <span>❤️ Mạng: <b id="lives">3</b></span>
+</div>
+
+<canvas id="game" width="420" height="560"></canvas>
+
+<div id="message">Nhấn BẮT ĐẦU để chơi!</div>
+<button id="start">▶ BẮT ĐẦU / CHƠI LẠI</button>
+
+<div class="controls">
+  <button id="left" aria-label="Sang trái">⬅️</button>
+  <button id="right" aria-label="Sang phải">➡️</button>
+</div>
+
+<p><small>Dùng phím ← → hoặc A, D để điều khiển.</small></p>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const scoreEl = document.getElementById("score");
+const livesEl = document.getElementById("lives");
+const message = document.getElementById("message");
+
+const W = canvas.width;
+const H = canvas.height;
+
+let ship, rocks, stars, score, lives;
+let playing = false;
+let lastTime = 0;
+let spawnTimer = 0;
+let invincible = 0;
+let animationId = null;
+
+let best = 0;
+try {
+  best = Number(localStorage.getItem("spaceBest")) || 0;
+} catch (e) {}
+
+const keys = { left: false, right: false };
+
+function resetGame() {
+  ship = { x: W / 2, y: H - 65, w: 30, h: 38 };
+  rocks = [];
+  stars = Array.from({ length: 65 }, () => ({
+    x: Math.random() * W,
+    y: Math.random() * H,
+    speed: 25 + Math.random() * 100,
+    size: Math.random() * 2 + 1
+  }));
+
+  score = 0;
+  lives = 3;
+  spawnTimer = 0;
+  invincible = 0;
+  lastTime = 0;
+  keys.left = false;
+  keys.right = false;
+
+  scoreEl.textContent = score;
+  livesEl.textContent = lives;
+}
+
+function drawShip() {
+  ctx.save();
+  ctx.translate(ship.x, ship.y);
+
+  ctx.fillStyle = "#ff9f43";
+  ctx.beginPath();
+  ctx.moveTo(-8, 15);
+  ctx.lineTo(0, 31 + Math.random() * 5);
+  ctx.lineTo(8, 15);
+  ctx.fill();
+
+  ctx.fillStyle = "#56efff";
+  ctx.beginPath();
+  ctx.moveTo(0, -22);
+  ctx.lineTo(16, 17);
+  ctx.lineTo(0, 10);
+  ctx.lineTo(-16, 17);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#f4f7ff";
+  ctx.beginPath();
+  ctx.moveTo(0, -17);
+  ctx.lineTo(7, 12);
+  ctx.lineTo(-7, 12);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#a7f8ff";
+  ctx.beginPath();
+  ctx.ellipse(0, -3, 4, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawRock(rock) {
+  ctx.save();
+  ctx.translate(rock.x, rock.y);
+  ctx.rotate(rock.rotation);
+
+  ctx.fillStyle = "#858ba6";
+  ctx.strokeStyle = "#d0d7ee";
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+  for (let i = 0; i < 9; i++) {
+    const angle = i * Math.PI * 2 / 9;
+    const radius = rock.r * (
+      i % 2 === 0 ? 1 : 0.78
+    );
+
+    const x = Math.cos(angle) * radius;
+    const y = Math.sin(angle) * radius;
+
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = "#565d77";
+  ctx.beginPath();
+  ctx.arc(-rock.r * 0.25, -rock.r * 0.1,
+          rock.r * 0.2, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawBackground(dt) {
+  ctx.fillStyle = "#080d28";
+  ctx.fillRect(0, 0, W, H);
+
+  for (const star of stars) {
+    star.y += star.speed * dt;
+
+    if (star.y > H) {
+      star.y = 0;
+      star.x = Math.random() * W;
+    }
+
+    ctx.fillStyle = "#dceaff";
+    ctx.globalAlpha = 0.4 + star.size / 4;
+    ctx.fillRect(star.x, star.y, star.size, star.size);
+  }
+
+  ctx.globalAlpha = 1;
+}
+
+function spawnRock() {
+  const r = 14 + Math.random() * 13;
+
+  rocks.push({
+    x: r + Math.random() * (W - 2 * r),
+    y: -r,
+    r,
+    speed: 100 + Math.random() * 70 + score * 1.5,
+    rotation: Math.random() * Math.PI,
+    spin: (Math.random() - 0.5) * 2
+  });
+}
+
+function hitTest(rock) {
+  const dx = rock.x - ship.x;
+  const dy = rock.y - ship.y;
+
+  return Math.hypot(dx, dy) < rock.r + 13;
+}
+
+function endGame() {
+  playing = false;
+  keys.left = false;
+  keys.right = false;
+  message.textContent =
+    "🚀 Kết thúc! Điểm: " + score +
+    " | Kỷ lục: " + best;
+}
+
+function update(dt) {
+  if (keys.left) ship.x -= 250 * dt;
+  if (keys.right) ship.x += 250 * dt;
+
+  ship.x = Math.max(22, Math.min(W - 22, ship.x));
+
+  invincible = Math.max(0, invincible - dt);
+  spawnTimer += dt;
+
+  const spawnInterval = Math.max(0.3, 0.85 - score * 0.003);
+
+  if (spawnTimer >= spawnInterval) {
+    spawnTimer = 0;
+    spawnRock();
+  }
+
+  for (let i = rocks.length - 1; i >= 0; i--) {
+    const rock = rocks[i];
+
+    rock.y += rock.speed * dt;
+    rock.rotation += rock.spin * dt;
+
+    if (rock.y - rock.r > H) {
+      rocks.splice(i, 1);
+      score++;
+      scoreEl.textContent = score;
+      continue;
+    }
+
+    if (invincible <= 0 && hitTest(rock)) {
+      rocks.splice(i, 1);
+      lives--;
+      livesEl.textContent = lives;
+      invincible = 1.2;
+
+      if (lives <= 0) {
+        endGame();
+        return;
+      }
+    }
+  }
+}
+
+function draw() {
+  drawBackground(0);
+
+  for (const rock of rocks) drawRock(rock);
+
+  if (invincible <= 0 || Math.floor(invincible * 10) % 2 === 0) {
+    drawShip();
+  }
+}
+
+function loop(timestamp) {
+  if (!playing) return;
+
+  if (!lastTime) lastTime = timestamp;
+
+  const dt = Math.min((timestamp - lastTime) / 1000, 0.04);
+  lastTime = timestamp;
+
+  update(dt);
+  draw();
+
+  if (playing) {
+    animationId = requestAnimationFrame(loop);
+  }
+}
+
+function startGame() {
+  if (animationId !== null) {
+    cancelAnimationFrame(animationId);
+  }
+
+  resetGame();
+  playing = true;
+  message.textContent = "Né thiên thạch nào!";
+  animationId = requestAnimationFrame(loop);
+}
+
+function setKey(key, value) {
+  if (key === "left") keys.left = value;
+  if (key === "right") keys.right = value;
+}
+
+document.addEventListener("keydown", e => {
+  if (["ArrowLeft", "ArrowRight", " "].includes(e.key)) {
+    e.preventDefault();
+  }
+
+  if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") {
+    setKey("left", true);
+  }
+
+  if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
+    setKey("right", true);
+  }
+
+  if (e.key === " " && !playing) startGame();
+});
+
+document.addEventListener("keyup", e => {
+  if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") {
+    setKey("left", false);
+  }
+
+  if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
+    setKey("right", false);
+  }
+});
+
+function bindButton(id, key) {
+  const button = document.getElementById(id);
+
+  button.addEventListener("pointerdown", e => {
+    e.preventDefault();
+    setKey(key, true);
+  });
+
+  for (const eventName of ["pointerup", "pointerleave",
+                           "pointercancel"]) {
+    button.addEventListener(eventName, () => setKey(key, false));
+  }
+}
+
+bindButton("left", "left");
+bindButton("right", "right");
+
+document.getElementById("start").addEventListener("click", startGame);
+
+resetGame();
+draw();
+</script>
+</body>
+</html>
